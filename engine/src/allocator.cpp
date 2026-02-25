@@ -21,9 +21,6 @@
 // nor did I notice the changes. As of the time im writing this, im re-doing the allocator system, but I want it to be clear for 
 // anyone browsing early versions of this project, the code generally sucking is the fault of claude.
 
-// Slightly later note: Actually realized there isn't much to rewrite. Someone recommended using smart pointers,
-// which I may pursue, but for the time being, simply removing the tetris-specific logic works.
-
 // Details:
 //      It added tetris (demo) specific code to this file. 
 //      It created a new function called draw_block_3d, not relevant to the allocator itself.
