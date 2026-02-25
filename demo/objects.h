@@ -27,6 +27,8 @@
 DrawData* new_obj_sized(StaticAllocator& sa, float X, float Y, float R, float G, float B, float size);
 DrawData* new_obj(StaticAllocator& sa, float X, float Y, float R, float G, float B);
 
+void draw_blocks_3d(void** ptr, int count);
+
 std::array<DrawData*, 4> Larry(StaticAllocator& sa);
 std::array<DrawData*, 4> Terry(StaticAllocator& sa);
 std::array<DrawData*, 4> Ivan(StaticAllocator& sa);

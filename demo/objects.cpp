@@ -20,6 +20,80 @@
 #include "../engine/include/bytee.h"
 #include "objects.h"
 
+static inline float clampf(float v, float lo, float hi) {
+    return v < lo ? lo : (v > hi ? hi : v);
+}
+
+static void draw_block_3d(DrawData* data) {
+    const float H = 0.05f;       // half block size
+    const float BD = 0.003f;     // border (outline) thickness
+    const float BV = 0.006f;     // bevel thickness
+    float ox = data->x;
+    float oy = data->y;
+    float r = data->r, g = data->g, b = data->b;
+
+    // 1. Dark border outline
+    glBegin(GL_TRIANGLE_FAN);
+        glColor3f(r * 0.2f, g * 0.2f, b * 0.2f);
+        glVertex2f(ox - H,      oy - H);
+        glVertex2f(ox + H,      oy - H);
+        glVertex2f(ox + H,      oy + H);
+        glVertex2f(ox - H,      oy + H);
+    glEnd();
+
+    // 2. Highlight layer (top-left bevel)
+    glBegin(GL_TRIANGLE_FAN);
+        glColor3f(clampf(r * 1.4f, 0, 1), clampf(g * 1.4f, 0, 1), clampf(b * 1.4f, 0, 1));
+        glVertex2f(ox - H + BD, oy - H + BD);
+        glVertex2f(ox + H - BD, oy - H + BD);
+        glVertex2f(ox + H - BD, oy + H - BD);
+        glVertex2f(ox - H + BD, oy + H - BD);
+    glEnd();
+
+    // 3. Shadow layer (bottom-right bevel)
+    glBegin(GL_TRIANGLE_FAN);
+        glColor3f(r * 0.45f, g * 0.45f, b * 0.45f);
+        glVertex2f(ox - H + BD + BV, oy - H + BD);
+        glVertex2f(ox + H - BD,      oy - H + BD);
+        glVertex2f(ox + H - BD,      oy + H - BD - BV);
+        glVertex2f(ox - H + BD + BV, oy + H - BD - BV);
+    glEnd();
+
+    // 4. Face (center)
+    glBegin(GL_TRIANGLE_FAN);
+        glColor3f(r, g, b);
+        glVertex2f(ox - H + BD + BV, oy - H + BD + BV);
+        glVertex2f(ox + H - BD - BV, oy - H + BD + BV);
+        glVertex2f(ox + H - BD - BV, oy + H - BD - BV);
+        glVertex2f(ox - H + BD + BV, oy + H - BD - BV);
+    glEnd();
+}
+
+// Renders an array of DrawData*, applying the 3D bevel effect to standard
+// full-size tetris blocks (0.1x0.1) and falling back to plain rendering otherwise.
+void draw_blocks_3d(void** ptr, int count) {
+    for (int i = 0; i < count; i++) {
+        if (ptr[i] == nullptr) continue;
+        DrawData* data = (DrawData*)ptr[i];
+
+        bool is_block = (data->vertex_count == 4 &&
+                         data->vertices[0] == -0.05f &&
+                         data->vertices[1] == -0.05f);
+
+        if (is_block) {
+            draw_block_3d(data);
+        } else {
+            glBegin(GL_TRIANGLE_FAN);
+                glColor3f(data->r, data->g, data->b);
+                for (int j = 0; j < data->vertex_count; j++) {
+                    glVertex2f(data->vertices[j * 2] + data->x,
+                              data->vertices[j * 2 + 1] + data->y);
+                }
+            glEnd();
+        }
+    }
+}
+
 static float full_size_block_offset = 0.1f;
 static float mini_block_offset = 0.01f;
 
