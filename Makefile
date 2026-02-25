@@ -35,7 +35,9 @@ endif
 FT_CFLAGS := $(shell $(PKG_CONFIG) --cflags freetype2)
 FT_LIBS := $(shell $(PKG_CONFIG) --libs freetype2)
 
-.PHONY: engine engine-verbose engine-test unit-tests individual clean
+.PHONY: engine engine-verbose engine-test unit-tests engine-portable individual clean
+
+# ── Engine library ────────────────────────────────────────────────────────────
 engine:
 	@echo "BUILD 󰑃  Engine Library"
 	@echo -e "\033[1;33m│ ├ 󰑃\033[0m  Deleting previous build..."
@@ -61,36 +63,43 @@ engine-verbose:
 	done
 	@ar rcs libengine.a obj/*.o
 	@echo -e "\033[1;33m│ └ 󰑃\033[0m  Done"
+
+# ── Engine test (demo) ────────────────────────────────────────────────────────
 engine-test: engine
 	@echo "TEST 󰑃  Engine"
 	@echo -e "\033[1;33m│ ├ 󰑃\033[0m  Building..."
 	@g++ -o engine-test demo/main.cpp demo/objects.cpp demo/scene_manager.cpp demo/scenes/game_scene.cpp demo/scenes/title_screen.cpp demo/scenes/settings_scene.cpp -I. -Iengine -Idemo -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS) $(STATIC_LINK)
 	@echo -e "\033[1;33m│ └ 󰑃\033[0m  Running..."
 	@./engine-test
+
+# ── Unit tests ────────────────────────────────────────────────────────────────
 unit-tests: engine
 	@rm -rf bin/tests && mkdir -p bin/tests
 	@echo "TESTS 󰑃  Unit Tests"
 	@echo -e "\033[1;33m│ ├ 󰑃\033[0m  FrameAllocator"
-	@g++ -o bin/tests/FrameAllocator tests/FrameAllocator.c -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
+	@g++ -o bin/tests/FrameAllocator tests/FrameAllocator.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
 	@./bin/tests/FrameAllocator | sed 's/^/\x1b[1;33m│ │ ├ 󰑃\x1b[0m  /'
 	@echo -e "\033[1;33m│ ├ 󰑃\033[0m  StaticAllocator"
-	@g++ -o bin/tests/StaticAllocator tests/StaticAllocator.c -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
+	@g++ -o bin/tests/StaticAllocator tests/StaticAllocator.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
 	@./bin/tests/StaticAllocator | sed 's/^/\x1b[1;33m│ │ ├ 󰑃\x1b[0m  /'
 	@echo -e "\033[1;33m│ ├ 󰑃\033[0m  WindowCreation"
-	@g++ -o bin/tests/WindowCreation tests/WindowCreation.c -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
+	@g++ -o bin/tests/WindowCreation tests/WindowCreation.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
 	@./bin/tests/WindowCreation | sed 's/^/\x1b[1;33m│ │ ├ 󰑃\x1b[0m  /'
 	@echo -e "\033[1;33m│ ├ 󰑃\033[0m  Collisions"
-	@g++ -o bin/tests/Collisions tests/Collisions.c -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
+	@g++ -o bin/tests/Collisions tests/Collisions.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
 	@./bin/tests/Collisions | sed 's/^/\x1b[1;33m│ │ ├ 󰑃\x1b[0m  /'
 	@echo -e "\033[1;33m│ └ 󰑃\033[0m  Pieces"
 	@g++ -o bin/tests/Pieces tests/Pieces.cpp demo/objects.cpp -I. -Iengine -Idemo -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
 	@./bin/tests/Pieces | sed 's/^/\x1b[1;33m│   └ 󰑃\x1b[0m  /'
-individual:
-	@[ -z "$(FILE)" ] && echo "ERROR 󰑃  FILE not specified" && exit 1
-	@echo "BUILD 󰑃  Individual File"
-	@BASENAME=$$(basename $(FILE) .c); [ "$$BASENAME" = "$(FILE)" ] && BASENAME=$$(basename $(FILE) .cpp); \
-	gcc $(FILE) -o $$BASENAME && echo -e "\033[1;33m│ └ 󰑃\033[0m  Running $$BASENAME..." && ./$$BASENAME
+
+# ── Portable single-header ────────────────────────────────────────────────────
+engine-portable:
+	@echo "BUILD 󰑃  Portable Single Header"
+	@echo -e "\033[1;33m│ ├ 󰑃\033[0m  Generating dist/bytee_single.h..."
+	@python3 tools/amalgamate.py . | sed 's/^/\x1b[1;33m│ └ 󰑃\x1b[0m  /'
+
+# ── Clean ─────────────────────────────────────────────────────────────────────
 clean:
 	@echo "CLEAN 󰑃  Build Artifacts"
-	@rm -f libengine.a engine-test && rm -rf obj/ bin/
+	@rm -f libengine.a engine-test && rm -rf obj/ bin/ dist/
 	@echo -e "\033[1;33m│ └ 󰑃\033[0m  Done"
