@@ -309,7 +309,7 @@ SceneID GameScene::tick(GLFWwindow* window, float delta_time,
                        cur_aspect - 0.17f, cur_aspect - 0.17f + corrected_w,
                        0.83f, 0.83f + 0.15f);
 
-    sa.draw_struct((void**)g_sprite.data(), g_sprite.size());
+    draw_blocks_3d((void**)g_sprite.data(), g_sprite.size());
 
     WidgetInfoArea wia = optimal_widget_info_area(tex, fb_w, fb_h, font_size,
                                                   "demo/font.ttf", "Settings");
