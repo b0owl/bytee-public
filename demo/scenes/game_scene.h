@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../scene.h"
+#include "../../engine/src/scene_manager/scene_manager.h"
 #include "../../engine/include/bytee.h"
 #include "../objects.h"
 #include <vector>

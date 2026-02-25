@@ -24,9 +24,8 @@
 
 #include <memory>
 #include <array>
-
 #include "../engine/include/bytee.h"
-#include "scene_manager.h"
+#include "../engine/src/scene_manager/scene_manager.h"
 #include "scenes/title_screen.h"
 #include "scenes/game_scene.h"
 #include "scenes/settings_scene.h"

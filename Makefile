@@ -68,7 +68,7 @@ engine-verbose:
 engine-test: engine
 	@echo "TEST 󰑃  Engine"
 	@echo -e "\033[1;33m│ ├ 󰑃\033[0m  Building..."
-	@g++ -o engine-test demo/main.cpp demo/objects.cpp demo/scene_manager.cpp demo/scenes/game_scene.cpp demo/scenes/title_screen.cpp demo/scenes/settings_scene.cpp -I. -Iengine -Idemo -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS) $(STATIC_LINK)
+	@g++ -o engine-test demo/main.cpp demo/objects.cpp demo/scenes/game_scene.cpp demo/scenes/title_screen.cpp demo/scenes/settings_scene.cpp -I. -Iengine -Idemo -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS) $(STATIC_LINK)
 	@echo -e "\033[1;33m│ └ 󰑃\033[0m  Running..."
 	@./engine-test
 
@@ -97,6 +97,13 @@ engine-portable:
 	@echo "BUILD 󰑃  Portable Single Header"
 	@echo -e "\033[1;33m│ ├ 󰑃\033[0m  Generating dist/bytee_single.h..."
 	@python3 tools/amalgamate.py . | sed 's/^/\x1b[1;33m│ └ 󰑃\x1b[0m  /'
+
+# ── Individual file ───────────────────────────────────────────────────────────
+individual:
+	@[ -z "$(FILE)" ] && echo "ERROR 󰑃  FILE not specified" && exit 1
+	@echo "BUILD 󰑃  Individual File"
+	@BASENAME=$$(basename $(FILE) .c); [ "$$BASENAME" = "$(FILE)" ] && BASENAME=$$(basename $(FILE) .cpp); \
+	gcc $(FILE) -o $$BASENAME && echo -e "\033[1;33m│ └ 󰑃\033[0m  Running $$BASENAME..." && ./$$BASENAME
 
 # ── Clean ─────────────────────────────────────────────────────────────────────
 clean:
