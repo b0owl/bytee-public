@@ -20,7 +20,6 @@
 // TODO - Work on safer / cleaner allocator systems (Customizeable allocator object? // Would require refac)
 // TODO - Add documentation
 
-#include <cmath>
 #include "../include/allocator.h"
 
 // Memory tracking implementation
@@ -115,76 +114,17 @@ void StaticAllocator::create_pointers(int size) {
     }
 }
 
-static inline float clampf(float v, float lo, float hi) {
-    return v < lo ? lo : (v > hi ? hi : v);
-}
-
-static void draw_block_3d(DrawData* data) {
-    const float H = 0.05f;       // half block size
-    const float BD = 0.003f;     // border (outline) thickness
-    const float BV = 0.006f;     // bevel thickness
-    float ox = data->x;
-    float oy = data->y;
-    float r = data->r, g = data->g, b = data->b;
-
-    // 1. Dark border outline (full block size)
-    glBegin(GL_TRIANGLE_FAN);
-        glColor3f(r * 0.2f, g * 0.2f, b * 0.2f);
-        glVertex2f(ox - H,      oy - H);
-        glVertex2f(ox + H,      oy - H);
-        glVertex2f(ox + H,      oy + H);
-        glVertex2f(ox - H,      oy + H);
-    glEnd();
-
-    // 2. Highlight layer (top-left bevel) - inset by border
-    glBegin(GL_TRIANGLE_FAN);
-        glColor3f(clampf(r * 1.4f, 0, 1), clampf(g * 1.4f, 0, 1), clampf(b * 1.4f, 0, 1));
-        glVertex2f(ox - H + BD, oy - H + BD);
-        glVertex2f(ox + H - BD, oy - H + BD);
-        glVertex2f(ox + H - BD, oy + H - BD);
-        glVertex2f(ox - H + BD, oy + H - BD);
-    glEnd();
-
-    // 3. Shadow layer (bottom-right bevel) - covers bottom and right strips
-    glBegin(GL_TRIANGLE_FAN);
-        glColor3f(r * 0.45f, g * 0.45f, b * 0.45f);
-        glVertex2f(ox - H + BD + BV, oy - H + BD);
-        glVertex2f(ox + H - BD,      oy - H + BD);
-        glVertex2f(ox + H - BD,      oy + H - BD - BV);
-        glVertex2f(ox - H + BD + BV, oy + H - BD - BV);
-    glEnd();
-
-    // 4. Face (center) - the main block color
-    glBegin(GL_TRIANGLE_FAN);
-        glColor3f(r, g, b);
-        glVertex2f(ox - H + BD + BV, oy - H + BD + BV);
-        glVertex2f(ox + H - BD - BV, oy - H + BD + BV);
-        glVertex2f(ox + H - BD - BV, oy + H - BD - BV);
-        glVertex2f(ox - H + BD + BV, oy + H - BD - BV);
-    glEnd();
-}
-
 void StaticAllocator::draw_struct(void** ptr, int count) {
     for (int i = 0; i < count; i++) {
         if (ptr[i] != nullptr) {
             DrawData* data = (DrawData*)ptr[i];
-
-            // Detect standard tetris blocks (0.1x0.1 squares from new_obj)
-            bool is_block = (data->vertex_count == 4 &&
-                             data->vertices[0] == -0.05f &&
-                             data->vertices[1] == -0.05f);
-
-            if (is_block) {
-                draw_block_3d(data);
-            } else {
-                glBegin(GL_TRIANGLE_FAN);
-                    glColor3f(data->r, data->g, data->b);
-                    for (int j = 0; j < data->vertex_count; j++) {
-                        glVertex2f(data->vertices[j * 2] + data->x,
-                                  data->vertices[j * 2 + 1] + data->y);
-                    }
-                glEnd();
-            }
+            glBegin(GL_TRIANGLE_FAN);
+                glColor3f(data->r, data->g, data->b);
+                for (int j = 0; j < data->vertex_count; j++) {
+                    glVertex2f(data->vertices[j * 2] + data->x,
+                              data->vertices[j * 2 + 1] + data->y);
+                }
+            glEnd();
         }
     }
 }
