@@ -16,44 +16,40 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
+// Note: This allocator at some point in time was re-written by claude code. I didn't tell it to edit this file
+// but for some reason it decided it was the best solution to a problem I asked it to solve. I stupidly didn't review this code,
+// nor did I notice the changes. As of the time im writing this, im re-doing the allocator system, but I want it to be clear for 
+// anyone browsing early versions of this project, the code generally sucking is the fault of claude.
 
-// TODO - Work on safer / cleaner allocator systems (Customizeable allocator object? // Would require refac)
-// TODO - Add documentation
+// Slightly later note: Actually realized there isn't much to rewrite. Someone recommended using smart pointers,
+// which I may pursue, but for the time being, simply removing the tetris-specific logic works.
+
+// Details:
+//      It added tetris (demo) specific code to this file. 
+//      It created a new function called draw_block_3d, not relevant to the allocator itself.
+//      It also created the memory tracking implementation? No clue why.
 
 #include "../include/allocator.h"
-
-// Memory tracking implementation
-int MALLOCED_C = 0;
-
-void* MALLOC(size_t size) {
-    MALLOCED_C++;
-    return malloc(size);
-}
-
-void FREE(void* ptr) {
-    MALLOCED_C--;
-    free(ptr);
-}
+#include <cstdlib>
 
 /* Allows the engine to create and interact with pointers.
 Pointers created will be automatically cleared and deleted every frame. 
 WARNING: Creating new pointers will free the previous! It is up to you to prevent
 unpredictable behavior! */
-// Fair warning, this is a generally dangerous class to intereact with (obviously)
 FrameAllocator::FrameAllocator() {
-    ptr = NULL;
+    ptr = nullptr;
     m_pointers = 0;
     m_frames_passed = 0;
     m_next_index = 0;
 }
 
 void FrameAllocator::create_pointers(int size) {
-    if (ptr != NULL) {
-        FREE(ptr);
+    if (ptr != nullptr) {
+        free(ptr);
     }
     
     m_pointers = size;
-    ptr = (void**)MALLOC(m_pointers * sizeof(void*));  
+    ptr = (void**)malloc(m_pointers * sizeof(void*));  
     
     for (int i = 0; i < m_pointers; i++) {
         ptr[i] = nullptr; // init pointers
@@ -87,27 +83,27 @@ void FrameAllocator::draw_struct(void** ptr, int count) {
 }
 
 FrameAllocator::~FrameAllocator() {
-    if (ptr != NULL) {
+    if (ptr != nullptr) {
         end_frame();  
-        FREE(ptr);    
+        free(ptr);    
     }
 }
 
 /* Manages persistent heap allocations that live until explicitly freed.
 Unlike FrameAllocator, stored pointers are NOT automatically cleared */
 StaticAllocator::StaticAllocator() {
-    ptr = NULL;
+    ptr = nullptr;
     m_pointers = 0;
     m_next_index = 0;
 }
 
 void StaticAllocator::create_pointers(int size) {
-    if (ptr != NULL) {
-        FREE(ptr);
+    if (ptr != nullptr) {
+        free(ptr);
     }
     
     m_pointers = size;
-    ptr = (void**)MALLOC(m_pointers * sizeof(void*));  
+    ptr = (void**)malloc(m_pointers * sizeof(void*));  
     
     for (int i = 0; i < m_pointers; i++) {
         ptr[i] = nullptr; 
@@ -130,12 +126,12 @@ void StaticAllocator::draw_struct(void** ptr, int count) {
 }
 
 StaticAllocator::~StaticAllocator() {
-    if (ptr != NULL) {
+    if (ptr != nullptr) {
         for (int i = 0; i < m_pointers; i++) {
             if (ptr[i] != nullptr) {
                 delete static_cast<DrawData*>(ptr[i]);  
             }
         }
-        FREE(ptr);
+        free(ptr);
     }
 }
