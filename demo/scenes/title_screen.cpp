@@ -1,9 +1,3 @@
-#ifdef __APPLE__
-  #include <OpenGL/gl.h>
-#else
-  #include <GL/gl.h>
-#endif
-
 #include <cmath>
 #include "title_screen.h"
 #include <string>

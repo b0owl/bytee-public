@@ -1,9 +1,7 @@
 #pragma once
 
-#include "../../engine/src/scene_manager/scene_manager.h"
-#include "../../engine/include/bytee.h"
+#include "../bytee.h"
 #include "../objects.h"
-#include <vector>
 
 class TitleScreen : public Scene {
 public:

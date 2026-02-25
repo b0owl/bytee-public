@@ -16,8 +16,6 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
-#include <array>
-#include "../engine/include/bytee.h"
 #include "objects.h"
 
 static inline float clampf(float v, float lo, float hi) {

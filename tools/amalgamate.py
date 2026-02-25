@@ -76,7 +76,7 @@ def strip_header_guard(src):
 
     # Remove the very last #endif (closing the guard).
     for i in range(len(result) - 1, -1, -1):
-        if result[i].strip() == '#endif':
+        if result[i].strip().startswith('#endif'):
             result.pop(i)
             break
 
@@ -134,8 +134,7 @@ out.append("""\
 
 # keyboard.h: has a KEYBOARD_IMPL split — keep only the extern/declaration half.
 keyboard_raw = read_file(os.path.join(INC, 'keyboard.h'))
-keyboard_decl = re.sub(r'#ifdef KEYBOARD_IMPL.*?#else\s*', '', keyboard_raw, flags=re.DOTALL)
-keyboard_decl = re.sub(r'#endif\s*//.*KEYBOARD.*$', '', keyboard_decl, flags=re.MULTILINE)
+keyboard_decl = re.sub(r'#ifdef KEYBOARD_IMPL.*?#else\s*(.*?)\s*#endif', r'\1', keyboard_raw, flags=re.DOTALL)
 keyboard_decl = strip_internal_includes(keyboard_decl)
 keyboard_decl = strip_header_guard(keyboard_decl)
 

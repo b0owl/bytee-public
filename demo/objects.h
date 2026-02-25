@@ -20,9 +20,7 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include <array>
-#include "../engine/include/allocator.h"
-#include "../engine/include/rendering.h"
+#include "bytee.h"
 
 DrawData* new_obj_sized(StaticAllocator& sa, float X, float Y, float R, float G, float B, float size);
 DrawData* new_obj(StaticAllocator& sa, float X, float Y, float R, float G, float B);

@@ -16,16 +16,7 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
-#ifdef __APPLE__
-  #include <OpenGL/gl.h>
-#else
-  #include <GL/gl.h>
-#endif
-
-#include <memory>
-#include <array>
-#include "../engine/include/bytee.h"
-#include "../engine/src/scene_manager/scene_manager.h"
+#include "bytee.h"
 #include "scenes/title_screen.h"
 #include "scenes/game_scene.h"
 #include "scenes/settings_scene.h"

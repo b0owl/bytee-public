@@ -1,9 +1,3 @@
-#ifdef __APPLE__
-  #include <OpenGL/gl.h>
-#else
-  #include <GL/gl.h>
-#endif
-
 #include <cstdio>
 #include "settings_scene.h"
 #include "../spawn_settings.h"

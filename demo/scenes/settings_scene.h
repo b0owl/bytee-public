@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../../engine/src/scene_manager/scene_manager.h"
-#include "../../engine/include/bytee.h"
+#include "../bytee.h"
 
 class SettingsScene : public Scene {
 public:
