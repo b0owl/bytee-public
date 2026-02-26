@@ -5,11 +5,11 @@
 // copy, modify, and distribute the Software for NON-COMMERCIAL purposes only,
 // subject to the following conditions:
 //
-// 1. The above copyright notice and this permission notice shall be included 
+// 1. The above copyright notice and this permission notice shall be included
 //    in all copies or substantial portions of the Software.
-// 2. The Software may not be used for commercial purposes without prior 
+// 2. The Software may not be used for commercial purposes without prior
 //    written permission from the copyright holder.
-// 3. Commercial use includes, but is not limited to, selling the Software, 
+// 3. Commercial use includes, but is not limited to, selling the Software,
 //    using it in a commercial product, or using it to provide commercial services.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -41,36 +41,7 @@ struct DrawData {
     float width, height;
 };
 
-// Frame-based memory allocator
-class FrameAllocator {
-public:
-    void **ptr;
-    int m_pointers;
-
-private:
-    int m_frames_passed;
-    int m_next_index;
-
-public:
-    FrameAllocator();
-    void create_pointers(int size);
-
-    template<typename T>
-    void store_ptr(T* value) {
-        ptr[m_next_index] = value;
-        m_next_index++;
-        m_pointers = m_next_index;
-    }
-
-    void reset_index() { m_next_index = 0; }
-    
-    void end_frame();
-    void draw_struct(void** ptr, int count);
-    ~FrameAllocator();
-};
-
-// Static memory allocator
-class StaticAllocator {
+class Allocator {
 public:
     void **ptr;
     int m_pointers;
@@ -79,7 +50,7 @@ private:
     int m_next_index;
 
 public:
-    StaticAllocator();
+    Allocator();
     void create_pointers(int size);
 
     template<typename T>
@@ -91,9 +62,9 @@ public:
     }
 
     void reset_index() { m_next_index = 0; }
-    
+
     void draw_struct(void** ptr, int count);
-    ~StaticAllocator();
+    ~Allocator();
 };
 
 #endif
