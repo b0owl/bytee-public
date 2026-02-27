@@ -1,6 +1,7 @@
 UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
 STATIC_LINK :=
+EXE :=
 
 ifeq ($(UNAME_S),Darwin)
   # Apple Silicon (arm64) uses /opt/homebrew, Intel/Rosetta uses /usr/local
@@ -18,12 +19,14 @@ else ifneq (,$(findstring MINGW,$(UNAME_S)))
   GL_LIBS := -lopengl32
   GLFW_LIBS := -lglfw3
   STATIC_LINK := -static-libgcc -static-libstdc++
+  EXE := .exe
 else ifneq (,$(findstring MSYS,$(UNAME_S)))
   # Windows (MSYS2)
   PKG_CONFIG := pkg-config
   GL_LIBS := -lopengl32
   GLFW_LIBS := -lglfw3
   STATIC_LINK := -static-libgcc -static-libstdc++
+  EXE := .exe
 else
   # Linux
   PKG_CONFIG := pkg-config
@@ -35,7 +38,7 @@ endif
 FT_CFLAGS := $(shell $(PKG_CONFIG) --cflags freetype2)
 FT_LIBS := $(shell $(PKG_CONFIG) --libs freetype2)
 
-.PHONY: engine engine-verbose engine-test unit-tests engine-portable individual clean
+.PHONY: engine engine-verbose unit-tests engine-portable individual clean
 
 # -- Engine library ------------------------------------------------------------
 engine:
@@ -64,30 +67,22 @@ engine-verbose:
 	@ar rcs libengine.a obj/*.o
 	@echo "[+] Done"
 
-# -- Engine test (demo) --------------------------------------------------------
-engine-test: engine
-	@echo "[+] TEST Engine"
-	@echo "[+] Building..."
-	@g++ -o engine-test demo/main.cpp demo/objects.cpp demo/scenes/game_scene.cpp demo/scenes/title_screen.cpp demo/scenes/settings_scene.cpp -I. -Iengine -Idemo -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS) $(STATIC_LINK)
-	@echo "[+] Running..."
-	@./engine-test
-
 # -- Unit tests ----------------------------------------------------------------
 unit-tests: engine
 	@rm -rf bin/tests && mkdir -p bin/tests
 	@echo "[+] TESTS Unit Tests"
 	@echo "[+] StaticAllocator"
-	@g++ -o bin/tests/StaticAllocator tests/StaticAllocator.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
-	@./bin/tests/StaticAllocator | sed 's/^/    /'
+	@g++ -o bin/tests/StaticAllocator$(EXE) tests/StaticAllocator.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
+	@./bin/tests/StaticAllocator$(EXE) | sed 's/^/    /'
 	@echo "[+] WindowCreation"
-	@g++ -o bin/tests/WindowCreation tests/WindowCreation.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
-	@./bin/tests/WindowCreation | sed 's/^/    /'
+	@g++ -o bin/tests/WindowCreation$(EXE) tests/WindowCreation.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
+	@./bin/tests/WindowCreation$(EXE) | sed 's/^/    /'
 	@echo "[+] Collisions"
-	@g++ -o bin/tests/Collisions tests/Collisions.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
-	@./bin/tests/Collisions | sed 's/^/    /'
+	@g++ -o bin/tests/Collisions$(EXE) tests/Collisions.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
+	@./bin/tests/Collisions$(EXE) | sed 's/^/    /'
 	@echo "[+] Pieces"
-	@g++ -o bin/tests/Pieces tests/Pieces.cpp demo/objects.cpp -I. -Iengine -Idemo -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
-	@./bin/tests/Pieces | sed 's/^/    /'
+	@g++ -o bin/tests/Pieces$(EXE) tests/Pieces.cpp demo/objects.cpp -I. -Iengine -Idemo -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
+	@./bin/tests/Pieces$(EXE) | sed 's/^/    /'
 
 # -- Portable single-header ----------------------------------------------------
 engine-portable:
@@ -105,5 +100,5 @@ individual:
 # -- Clean ---------------------------------------------------------------------
 clean:
 	@echo "[+] CLEAN Build Artifacts"
-	@rm -f libengine.a engine-test && rm -rf obj/ bin/ dist/
+	@rm -f libengine.a && rm -rf obj/ bin/ dist/
 	@echo "[+] Done"
