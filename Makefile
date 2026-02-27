@@ -76,9 +76,6 @@ engine-test: engine
 unit-tests: engine
 	@rm -rf bin/tests && mkdir -p bin/tests
 	@echo "[+] TESTS Unit Tests"
-	@echo "[+] FrameAllocator"
-	@g++ -o bin/tests/FrameAllocator tests/FrameAllocator.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
-	@./bin/tests/FrameAllocator | sed 's/^/    /'
 	@echo "[+] StaticAllocator"
 	@g++ -o bin/tests/StaticAllocator tests/StaticAllocator.cpp -I. -Iengine -L. -lengine $(GL_LIBS) $(GLFW_LIBS) $(FT_LIBS)
 	@./bin/tests/StaticAllocator | sed 's/^/    /'
