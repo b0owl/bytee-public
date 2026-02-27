@@ -79,8 +79,6 @@ WidgetInfoArea optimal_widget_info_area(const char*  texture_id, int fb_w, int f
 
 // Text widget areas (keyed by a string id)
 WidgetArea define_text_area(const char* ID, const char* font_path, const char* text, float x, float y, float size);
-bool check_text_hover(GLFWwindow* window, const char* ID, int fb_w, int fb_h, float cur_aspect);
-int check_text_click(GLFWwindow* window, const char* ID, int fb_w, int fb_h, float cur_aspect);
 
 
 #endif // WINDOW_H

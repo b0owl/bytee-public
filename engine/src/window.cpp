@@ -18,7 +18,7 @@
 
 /* 
 
-**This file contains functions that might technically be better fit for rendering.cpp, however
+** This file contains functions that might technically be better fit for rendering.cpp, however
 ** I chose to keep them here as they are tied into the widgeting system. I may move them in a 
 ** future update. 
 
@@ -171,17 +171,10 @@ GLFWwindow* create_window(int x_dim, int y_dim, const char* title_bar) {
 
 // WIDGET AREAS ------------------------
 
-/* 
-NOTE: Originally, (for some reason) the ID used to track widgets was the texture ID for sprite-widgets, and
-a user-defined ID for the text-widgets. Now, the ID is completley user defined. Sprite based widget id's are now (as of time of writing) 
-strings, just like the text-widgets, however, it may be simpler to cast the OpenGL texture IDs to strings then to define your own. Whatever
-convention you use is up to you, though. 
-*/ 
-
-static std::unordered_map<unsigned int, WidgetArea> widget_tracker;
+static std::unordered_map<std::string, WidgetArea> widget_tracker;
 
 /*
-@brief, registers a widget area for a given texture ID and returns its span.
+@brief, registers a widget area for a given ID and returns its span.
 
 @param ID, the ID the area is bound to
 @param x1/x2, horizontal span in world coordinates (left → right)
@@ -190,19 +183,19 @@ static std::unordered_map<unsigned int, WidgetArea> widget_tracker;
 */
 WidgetArea define_widget_area(const char* ID, float x1, float x2, float y1, float y2) {
     WidgetArea area = { x1, x2, y1, y2 };
-    widget_tracker[static_cast<unsigned int>(std::stoul(ID))] = area;
+    widget_tracker[ID] = area;
     return area;
 }
 
 /*
-@brief, retrieves the span previously registered for a texture ID.
+@brief, retrieves the span previously registered for a given ID.
         Returns a zeroed WidgetArea if the ID has not been registered.
 
 @param ID, the ID to look up
 @returns the registered WidgetArea, or { 0, 0, 0, 0 } if not found
 */
 WidgetArea get_widget_area(const char* ID) {
-    auto it = widget_tracker.find(static_cast<unsigned int>(std::stoul(ID)));
+    auto it = widget_tracker.find(ID);
     if (it != widget_tracker.end()) return it->second;
     return { 0.0f, 0.0f, 0.0f, 0.0f };
 }
@@ -273,8 +266,6 @@ WidgetInfoArea optimal_widget_info_area(const char* ID, int fb_w, int fb_h, floa
 
 // TEXT WIDGET AREAS ------------------------
 
-static std::unordered_map<std::string, WidgetArea> text_area_tracker;
-
 /*
 @brief, registers a widget area for a piece of rendered text and returns its bounds.
         The bounds are computed from the text's draw position and its measured
@@ -292,49 +283,6 @@ WidgetArea define_text_area(const char* ID, const char* font_path, const char* t
     float cap_height = get_text_cap_height(font_path, size);
     float text_width = get_text_width(font_path, text, size);
     WidgetArea area = { x, x + text_width, y, y + cap_height };
-    text_area_tracker[ID] = area;
+    widget_tracker[ID] = area;
     return area;
-}
-
-/*
-@brief, checks if the mouse is hovering over a text widget area
-
-@param window,     pointer to a GLFWwindow
-@param id,         string key of the text area
-@param fb_w/h,     framebuffer size in pixels
-@param cur_aspect, the framebuffer's width/height ratio
-*/
-bool check_text_hover(GLFWwindow* window, const char* ID, int fb_w, int fb_h, float cur_aspect) {
-    auto it = text_area_tracker.find(ID);
-    if (it == text_area_tracker.end()) return false;
-    WidgetArea wa = it->second;
-    MouseState ms;
-    get_mouse_state(window, ms);
-    float gl_x, gl_y;
-    screen_to_gl(ms.x, ms.y, fb_w, fb_h, gl_x, gl_y);
-    float world_x = gl_x * cur_aspect;
-    float world_y = gl_y;
-    return world_x >= wa.x1 && world_x <= wa.x2 &&
-           world_y >= wa.y1 && world_y <= wa.y2;
-}
-
-/*
-@brief, checks for mouse clicks on a text widget area
-
-@params, same as check_text_hover
-
-@return 1, left click
-@return 2, right click
-@return 3, middle click
-@return 0, no click
-*/
-int check_text_click(GLFWwindow* window, const char* ID, int fb_w, int fb_h, float cur_aspect) {
-    MouseState ms;
-    get_mouse_state(window, ms);
-    if (check_text_hover(window, ID, fb_w, fb_h, cur_aspect)) {
-        if (ms.left_button)   return 1;
-        if (ms.right_button)  return 2;
-        if (ms.middle_button) return 3;
-    }
-    return 0;
 }
