@@ -71,17 +71,16 @@ struct WidgetInfoArea {
     float y;
 };
 
-WidgetArea define_widget_area(unsigned int texture_id, float x1, float x2, float y1, float y2);
-WidgetArea get_widget_area(unsigned int texture_id);
-bool check_widget_hover(GLFWwindow* window, unsigned int texture_id, int fb_w, int fb_h, float cur_aspect);
-int check_widget_click(GLFWwindow* window, unsigned int texture_id, int fb_w, int fb_h, float cur_aspect);
-WidgetInfoArea optimal_widget_info_area(unsigned int texture_id, int fb_w, int fb_h, float text_size, const char* font_path, const char* text);
+WidgetArea define_widget_area(const char*  texture_id, float x1, float x2, float y1, float y2);
+WidgetArea get_widget_area(const char*  texture_id);
+bool check_widget_hover(GLFWwindow* window, const char*  texture_id, int fb_w, int fb_h, float cur_aspect);
+int check_widget_click(GLFWwindow* window, const char*  texture_id, int fb_w, int fb_h, float cur_aspect);
+WidgetInfoArea optimal_widget_info_area(const char*  texture_id, int fb_w, int fb_h, float text_size, const char* font_path, const char* text);
 
 // Text widget areas (keyed by a string id)
-WidgetArea define_text_area(const char* id, const char* font_path, const char* text, float x, float y, float size);
-WidgetArea get_text_area(const char* id);
-bool check_text_hover(GLFWwindow* window, const char* id, int fb_w, int fb_h, float cur_aspect);
-int check_text_click(GLFWwindow* window, const char* id, int fb_w, int fb_h, float cur_aspect);
+WidgetArea define_text_area(const char* ID, const char* font_path, const char* text, float x, float y, float size);
+bool check_text_hover(GLFWwindow* window, const char* ID, int fb_w, int fb_h, float cur_aspect);
+int check_text_click(GLFWwindow* window, const char* ID, int fb_w, int fb_h, float cur_aspect);
 
 
 #endif // WINDOW_H
