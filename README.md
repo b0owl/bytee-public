@@ -1,17 +1,11 @@
-# Documentation is a work in progress.
-Roadmap: (Not complete) 
+# Bytee
 
-- Remove duplicate pieces (i.e the J piece) and add rotation mechanic
-- Polish code
-- Prep full publication
----
-Compilation:
-make engine-test: creates and runs demo
+### Build System
 
-make engine: creates libengine.a
-make engine-verbose: creates libengine.a with more printouts
-
-make engine-portable: single .h file for the entire engine
-
----
-For windows, use MSYS to compile and use this project.
+| Command | Description |
+|---|---|
+| `make engine` | Produces `libengine.a`, a pre-linked archive of the engine's object files |
+| `make engine-portable` | Produces `dist/bytee.h`, a header file containing all functions and dependencies |
+| `make unit-tests` | Compiles and runs the tests |
+| `make individual` | Compiles an individual file |
+| `make clean` | Cleans build artifacts |
