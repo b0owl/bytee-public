@@ -1,7 +1,10 @@
 #pragma once
 
-#include "../bytee.h"
+#include "../../engine/src/scene_manager/scene_manager.h"
+#include "../../engine/include/bytee.h"
 #include "../objects.h"
+#include <vector>
+#include <array>
 
 class GameScene : public Scene {
 public:
@@ -18,7 +21,7 @@ private:
     static constexpr float DAS_DELAY           = 0.2f;
     static constexpr float DAS_RATE            = 0.05f;
 
-    StaticAllocator sa;
+    Allocator sa;
     std::vector<DrawData*> g_sprite;
     std::vector<DrawData*> g_active_piece;
     std::vector<DrawData*> g_locked_pieces;
