@@ -197,7 +197,7 @@ WidgetArea define_widget_area(const char* ID, float x1, float x2, float y1, floa
 WidgetArea get_widget_area(const char* ID) {
     auto it = widget_tracker.find(ID);
     if (it != widget_tracker.end()) return it->second;
-    return { 0.0f, 0.0f, 0.0f, 0.0f };
+    return { -2.0f, -2.0f, -2.0f, -2.0f };
 }
 
 /*
@@ -207,6 +207,8 @@ WidgetArea get_widget_area(const char* ID) {
 @param ID, ID of a widget
 @param fb_w/h, framebuffer size in pixels
 @param cur_aspect, the framebuffer's width/height ratio
+
+@return, true if mouse is hovering on a given widget, otherwise return will be false
 */
 bool check_widget_hover(GLFWwindow* window, const char* ID, int fb_w, int fb_h, float cur_aspect) {
     WidgetArea wa = get_widget_area(ID);
