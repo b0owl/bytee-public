@@ -11,4 +11,14 @@ void draw_text(const char* font_path, const char* text, float x, float y, float 
 float get_text_cap_height(const char* font_path, float text_size);
 float get_text_width(const char* font_path, const char* text, float text_size);
 
+// Spritesheet slicing
+struct SpriteSheet {
+    unsigned int tex;
+    int img_w, img_h;
+    int cols, rows;
+};
+
+SpriteSheet load_spritesheet(const char* filepath, int cols, int rows);
+void draw_sprite(SpriteSheet sheet, int frame, float x, float y, float w, float h, float* out_corrected_w = nullptr);
+
 #endif

@@ -33,6 +33,7 @@
 #include <vector>
 #include <unordered_map>
 #include "../include/allocator.h"
+#include "../include/rendering.h"
 
 /*
 @brief, Creates and returns an object with the information specified 
@@ -111,6 +112,98 @@ unsigned int draw_image(const char* filepath, float x, float y, float w, float h
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
     return tex;
+}
+
+// --- Spritesheet -------------------------------------------------------------
+
+struct SheetEntry { unsigned int tex; int img_w, img_h; };
+static std::unordered_map<std::string, SheetEntry> sheet_cache;
+
+/*
+@brief, loads a spritesheet image and caches the GL texture.
+        Subsequent calls with the same filepath return the cached texture
+        without reloading from disk.
+
+@param filepath, path to the image file
+@param cols, number of columns in the grid
+@param rows, number of rows in the grid
+@returns a SpriteSheet ready to pass to draw_sprite
+*/
+SpriteSheet load_spritesheet(const char* filepath, int cols, int rows) {
+    SpriteSheet ss = { 0, 0, 0, cols, rows };
+
+    auto it = sheet_cache.find(filepath);
+    if (it != sheet_cache.end()) {
+        ss.tex   = it->second.tex;
+        ss.img_w = it->second.img_w;
+        ss.img_h = it->second.img_h;
+        return ss;
+    }
+
+    int img_w, img_h, channels;
+    unsigned char* data = stbi_load(filepath, &img_w, &img_h, &channels, 0);
+    if (!data) return ss;
+
+    ss.img_w = img_w;
+    ss.img_h = img_h;
+
+    unsigned int tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, img_w, img_h, 0, format, GL_UNSIGNED_BYTE, data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    stbi_image_free(data);
+
+    sheet_cache[filepath] = { tex, img_w, img_h };
+    ss.tex = tex;
+    return ss;
+}
+
+/*
+@brief, draws a single frame from a spritesheet.
+        Frames are indexed left-to-right, top-to-bottom starting at 0.
+
+@param sheet,          SpriteSheet returned by load_spritesheet
+@param frame,          zero-based frame index
+@param x/y,            bottom-left corner in world coordinates
+@param w/h,            desired height in world units; width is corrected for the
+                       cell aspect ratio automatically
+@param out_corrected_w optional; written with the actual rendered width
+*/
+void draw_sprite(SpriteSheet sheet, int frame, float x, float y, float w, float h, float* out_corrected_w) {
+    if (!sheet.tex) return;
+
+    float cell_aspect = (float)(sheet.img_w * sheet.rows) / (float)(sheet.img_h * sheet.cols);
+    float corrected_w = w * cell_aspect;
+    if (out_corrected_w) *out_corrected_w = corrected_w;
+
+    int col = frame % sheet.cols;
+    int row = frame / sheet.cols;
+    float u0 = (float)col       / sheet.cols;
+    float u1 = (float)(col + 1) / sheet.cols;
+    float v0 = (float)row       / sheet.rows;
+    float v1 = (float)(row + 1) / sheet.rows;
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, sheet.tex);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    glBegin(GL_TRIANGLE_FAN);
+        glTexCoord2f(u0, v1); glVertex2f(x,               y);
+        glTexCoord2f(u1, v1); glVertex2f(x + corrected_w, y);
+        glTexCoord2f(u1, v0); glVertex2f(x + corrected_w, y + h);
+        glTexCoord2f(u0, v0); glVertex2f(x,               y + h);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
 }
 
 // --- Text rendering ----------------------------------------------------------
