@@ -9,3 +9,5 @@
 | `make unit-tests` | Compiles and runs the tests |
 | `make individual` | Compiles an individual file |
 | `make clean` | Cleans build artifacts |
+
+Note: Production for this engine will likely slow as I focus my attention on a **closed source** game.
