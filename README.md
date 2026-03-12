@@ -11,3 +11,4 @@
 | `make clean` | Cleans build artifacts |
 
 Note: Production for this engine will likely slow as I focus my attention on a **closed source** game.
+Note 2: The version of the engine in the closed source game is much ahead this one. Ill eventually port over all the modifications but as of now its too annoying to manage all the repos 
